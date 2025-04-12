@@ -6,7 +6,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private Transform _orientationTransform;
 
     [Header("Movement Settings")]
-    [SerializeField] private KeyCode _movementKey;
+    [SerializeField] private KeyCode _moveKey;
     [SerializeField] private float _movementSpeed;
 
 
@@ -52,8 +52,8 @@ public class PlayerController : MonoBehaviour
     {
         SetInputs();
         SetStates();
-        SetPlayerDrag();
         LimitPlayerSpeed();
+        SetPlayerDrag();
     }
 
     private void FixedUpdate()
@@ -63,14 +63,14 @@ public class PlayerController : MonoBehaviour
 
     private void SetInputs()
     {
-        _horizontalInput = Input.GetAxis("Horizontal");
-        _verticalInput = Input.GetAxis("Vertical");
+        _horizontalInput = Input.GetAxisRaw("Horizontal");
+        _verticalInput = Input.GetAxisRaw("Vertical");
 
         if (Input.GetKeyDown(_slideKey))
         {
             _isSliding = true;
         }
-        else if (Input.GetKeyUp(_movementKey))
+        else if (Input.GetKeyUp(_moveKey))
         {
             _isSliding = false;
         }
@@ -109,16 +109,16 @@ public class PlayerController : MonoBehaviour
 
     private void SetPlayerMovement()
     {
-        _movementDirection = _orientationTransform.forward * _verticalInput
-        + _orientationTransform.right * _horizontalInput;
+        _movementDirection = _orientationTransform.forward * _verticalInput + _orientationTransform.right * _horizontalInput;
 
         float forceMultiplier = _stateController.GetCurrentState() switch
         {
             PlayerState.Move => 1f,
-            PlayerState.Slide => _slideMultiplier,
             PlayerState.Jump => _airMultiplier,
+            PlayerState.Slide => _slideMultiplier,
             _ => 1f
         };
+
         _playerRigidbody.AddForce(_movementDirection.normalized * _movementSpeed * forceMultiplier, ForceMode.Force);
 
     }
